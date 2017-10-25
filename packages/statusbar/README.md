@@ -1,6 +1,6 @@
 # Theia - Statusbar Extension
 
-This extension provides an API to add Widgets to the statusbar.
+This extension provides an API to add Widgets to a statusbar at the bottom of the app.
 
 See [here](https://github.com/theia-ide/theia).
 

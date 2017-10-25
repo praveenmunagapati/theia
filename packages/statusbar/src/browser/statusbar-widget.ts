@@ -24,6 +24,7 @@ export class StatusbarWidget extends VirtualWidget {
 
     set entryData(data: StatusbarEntry) {
         this._entryData = data;
+        console.log("Entry data set", this._entryData);
     }
 
 

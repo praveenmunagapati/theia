@@ -7,7 +7,7 @@
 
 import { injectable, inject } from "inversify";
 import { StatusbarWidget } from './statusbar-widget';
-import { Command } from "@theia/core";
+import { Command, Disposable, DisposableCollection } from "@theia/core";
 import { WidgetManager } from "@theia/core/lib/browser";
 
 export interface StatusbarEntry {
@@ -17,17 +17,43 @@ export interface StatusbarEntry {
     arguments?: any[];
 }
 
+export enum StatusbarAlignment {
+    LEFT, RIGHT
+}
+
 export const STATUSBAR_WIDGET_FACTORY_ID = 'statusbar';
 
 @injectable()
 export class StatusbarService {
 
+    protected toDispose = new DisposableCollection();
+
     constructor( @inject(WidgetManager) protected readonly widgetManager: WidgetManager) {
 
     }
 
-    getOrCreateWidget(id: string): Promise<StatusbarWidget> {
-        return this.widgetManager.getOrCreateWidget(STATUSBAR_WIDGET_FACTORY_ID, id);
+    async getOrCreateWidget(id: string): Promise<StatusbarWidget> {
+        const widget = await this.widgetManager.getOrCreateWidget<StatusbarWidget>(STATUSBAR_WIDGET_FACTORY_ID, id);
+
+        console.log("getorcreatewidget", widget);
+
+        return widget;
     }
+
+    addEntry(entry: StatusbarWidget, alignment: StatusbarAlignment, priority?: number): Disposable {
+
+        console.log("Add to bar", entry, alignment, priority);
+
+        return {
+            dispose: () => {
+                // something must be destroyed here.
+
+                if (this.toDispose) {
+                    this.toDispose.dispose();
+                }
+            }
+        }
+    }
+
 
 }

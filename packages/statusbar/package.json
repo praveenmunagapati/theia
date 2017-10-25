@@ -3,14 +3,13 @@
   "version": "0.1.1",
   "description": "Theia - Statusbar Extension",
   "dependencies": {
-    "@theia/core": "^0.1.1",
-    "@theia/filesystem": "^0.1.1"
+    "@theia/core": "^0.1.1"
   },
   "publishConfig": {
     "access": "public"
   },
   "theiaExtensions": [{
-    "frontend": "lib/browser/problem/problem-frontend-module"
+    "frontend": "lib/browser/statusbar-frontend-module"
   }],
   "keywords": [
     "theia-extension"
