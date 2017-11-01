@@ -8,7 +8,6 @@
 import { VirtualWidget } from "@theia/core/lib/browser";
 import { StatusbarEntry } from './statusbar-service';
 
-
 export class StatusbarWidget extends VirtualWidget {
 
     protected _entryData: StatusbarEntry;
@@ -27,6 +26,4 @@ export class StatusbarWidget extends VirtualWidget {
         console.log("Entry data set", this._entryData);
     }
 
-
-
-};
+}

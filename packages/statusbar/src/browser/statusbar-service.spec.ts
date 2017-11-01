@@ -52,7 +52,6 @@ import { WidgetFactory, WidgetManager } from "@theia/core/lib/browser";
 
 // });
 
-
 import { Container, ContainerModule } from 'inversify';
 import { expect } from 'chai';
 import { Widget } from '@phosphor/widgets';
