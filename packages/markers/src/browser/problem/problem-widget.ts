@@ -17,6 +17,7 @@ import { Message } from '@phosphor/messaging';
 import { FileIconProvider } from '@theia/filesystem/lib/browser/icons/file-icons';
 import URI from '@theia/core/lib/common/uri';
 import { UriSelection } from '@theia/filesystem/lib/common';
+import { WorkspaceService } from '@theia/workspace/lib/browser';
 
 @injectable()
 export class ProblemWidget extends TreeWidget {
@@ -26,7 +27,8 @@ export class ProblemWidget extends TreeWidget {
         @inject(TreeProps) readonly treeProps: TreeProps,
         @inject(ProblemTreeModel) readonly model: ProblemTreeModel,
         @inject(ContextMenuRenderer) readonly contextMenuRenderer: ContextMenuRenderer,
-        @inject(FileIconProvider) protected readonly iconProvider: FileIconProvider
+        @inject(FileIconProvider) protected readonly iconProvider: FileIconProvider,
+        @inject(WorkspaceService) protected readonly workspaceService: WorkspaceService
     ) {
         super(treeProps, model, contextMenuRenderer);
 
@@ -111,8 +113,7 @@ export class ProblemWidget extends TreeWidget {
             case 1: return 'fa fa-times-circle error';
             case 2: return 'fa fa-exclamation-circle warning';
             case 3: return 'fa fa-info-circle information';
-            case 4: return 'fa fa-hand-o-up hint';
-            default: return '';
+            default: return 'fa fa-hand-o-up hint';
         }
     }
 
@@ -123,4 +124,8 @@ export class ProblemWidget extends TreeWidget {
         const counterDiv = h.div({ className: 'counter' }, node.numberOfMarkers.toString());
         return h.div({ className: 'markerFileNode' }, filenameDiv, pathDiv, counterDiv);
     }
+
+    // protected getRelativePath() {
+    //     const workspaceFileStat = this.workspaceService.tryRoot();
+    // }
 }
