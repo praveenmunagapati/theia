@@ -6,79 +6,44 @@
  */
 
 // tslint:disable:no-console
-import { assert, use } from 'chai';
-use(require('chai-as-promised'));
+import * as path from 'path';
 import * as cluster from 'cluster';
-import { clusterRemoteMasterProcessFactory, ServerProcess } from './cluster';
 import { MasterProcess } from './cluster/master-process';
 
 process.on('unhandledRejection', (reason, promise) => {
     throw reason;
 });
 
-if (cluster.isMaster) {
-    describe('master-process', () => {
+describe('master-process', () => {
 
-        function prepareWorkerTest(test: string) {
-            // https://github.com/Microsoft/vscode/issues/3201
-            const execArgv = process.execArgv.reduce((result, arg) => {
-                result.push(arg.replace('-brk', ''));
-                return result;
-            }, [] as string[]);
-            const testSettings: cluster.ClusterSettings = {
-                execArgv,
-                args: [...process.argv.slice(2), '--grep', test],
-                // https://github.com/Microsoft/vscode/issues/19750
-                stdio: ['ipc', 'pipe', 'pipe']
-            };
-            cluster.setupMaster(testSettings);
-        }
-
-        const forwardWorkerTestOutput = (worker: cluster.Worker) => {
-            worker.process.stdout.pipe(process.stdout);
-            worker.process.stderr.pipe(process.stderr);
+    function prepareTestWorker(job: string) {
+        const testSettings: cluster.ClusterSettings = {
+            exec: path.resolve(__dirname, '../../lib/node/test/cluster-test-worker.js'),
+            execArgv: [],
+            args: [job],
+            stdio: ['ipc', 1, 2]
         };
-        before(() => {
-            cluster.on('fork', forwardWorkerTestOutput);
-        });
-        after(() => {
-            cluster.removeListener('fork', forwardWorkerTestOutput);
-        });
+        cluster.setupMaster(testSettings);
+    }
 
-        let originalSettings: cluster.ClusterSettings;
-        beforeEach(() => originalSettings = cluster.settings);
-        afterEach(() => cluster.setupMaster(originalSettings));
+    let originalSettings: cluster.ClusterSettings;
+    beforeEach(() => originalSettings = cluster.settings);
+    afterEach(() => cluster.setupMaster(originalSettings));
 
-        it('start', async function () {
-            this.timeout(10000);
-            const master = new MasterProcess();
+    it('start', async function () {
+        this.timeout(10000);
+        const master = new MasterProcess();
 
-            prepareWorkerTest('restart');
-            const restartWorker = master.start();
+        prepareTestWorker('restart');
+        const restartWorker = master.start();
 
-            prepareWorkerTest('timeout next worker');
-            await master.restarting;
-            prepareWorkerTest('restarted');
+        prepareTestWorker('timeout next worker');
+        await master.restarting;
+        prepareTestWorker('restarted');
 
-            const restartedWorker = await master.restarted;
-            await assert.isFulfilled(restartWorker.exit);
-            await assert.isFulfilled(restartedWorker.exit);
-        });
-
+        const restartedWorker = await master.restarted;
+        await restartWorker.exit;
+        await restartedWorker.exit;
     });
-} else {
-    describe('server-process', () => {
 
-        it('restart', async function () {
-            const server = new ServerProcess(clusterRemoteMasterProcessFactory);
-            await assert.isRejected(server.restart());
-            await assert.isFulfilled(server.restart());
-        });
-
-        it('restarted', async function () {
-            const server = new ServerProcess(clusterRemoteMasterProcessFactory);
-            await assert.isFulfilled(server.kill());
-        });
-
-    });
-}
+});
